@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/cpu_scheduling_visualizer.html"
+    }
+  ]
+}

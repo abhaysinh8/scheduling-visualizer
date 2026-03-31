@@ -1,6 +1,10 @@
 # CPU Scheduling Algorithms Visualizer 🚀
 
-An interactive, premium-designed educational tool built to visualize and teach Operating System CPU Scheduling algorithms step-by-step. This tool was developed as an OS assignment to demonstrate scheduling concepts through live animations rather than static calculations.
+An interactive educational simulator for visualizing Operating System CPU scheduling algorithms step-by-step. Built as an OS Internal Assessment project, it helps learners understand scheduling behavior through live Gantt chart animation and computed performance metrics.
+
+## 🌐 Live Demo
+
+https://scheduling-visualizer.vercel.app
 
 ## 🌟 Features
 
