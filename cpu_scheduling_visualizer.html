@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0b0f19;font-family:'Inter',system-ui,sans-serif;color:#e2e8f0;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at top center, rgba(0, 220, 255, 0.08) 0%, transparent 45%), linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:100% 100%, 32px 32px, 32px 32px;pointer-events:none;z-index:0;}
+#app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 16px 48px;}
+
+/* HEADER */
+.hdr{background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 24px;position:sticky;top:0;z-index:50;backdrop-filter:blur(24px);margin:0 -16px;}
+.hdr-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12;}
+.hdr-logo{display:flex;align-items:center;gap:14;}
+.hdr-icon{font-size:1.8rem;color:#00dcff;text-shadow:0 0 20px rgba(0,220,255,0.6);}
+.hdr-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:0.06em;background:linear-gradient(90deg,#00dcff,#bf5fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr-sub{color:rgba(255,255,255,0.3);font-size:0.72rem;letter-spacing:0.04em;margin-top:1px;}
+.hdr-badge{background:rgba(0,220,255,0.08);border:1px solid rgba(0,220,255,0.2);color:#00dcff;padding:4px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;letter-spacing:0.05em;white-space:nowrap;}
+
+/* CARDS */
+.card{background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px;}
+.sec-lbl{font-size:0.65rem;letter-spacing:0.14em;color:rgba(255,255,255,0.28);font-weight:600;text-transform:uppercase;}
+
+/* ALGO PILLS */
+.algo-pill{padding:7px 15px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:0.8rem;font-weight:600;transition:all .15s;background:transparent;color:rgba(255,255,255,0.45);font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+.algo-pill:hover{border-color:rgba(0,220,255,0.3);color:rgba(0,220,255,0.7);}
+.algo-pill.active{background:rgba(0,220,255,0.1);border-color:rgba(0,220,255,0.45);color:#00dcff;box-shadow:0 0 14px rgba(0,220,255,0.12);}
+.tag-p{font-size:0.6rem;padding:1px 5px;border-radius:3px;background:rgba(255,45,120,0.2);color:#ff2d78;}
+.tag-np{font-size:0.6rem;padding:1px 5px;border-radius:3px;background:rgba(57,255,20,0.15);color:#39ff14;}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 250px;gap:16px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+
+/* TABLE */
+.proc-table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+.proc-table th{padding:6px 10px;text-align:center;font-size:0.65rem;letter-spacing:0.08em;color:rgba(255,255,255,0.28);border-bottom:1px solid rgba(255,255,255,0.06);font-weight:500;}
+.proc-table td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cell-inp{background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:5px 7px;color:#e2e8f0;font-size:0.82rem;text-align:center;font-family:'JetBrains Mono',monospace;width:100%;outline:none;transition:border-color .15s;}
+.cell-inp:focus{border-color:rgba(0,220,255,0.4);}
+.btn-add{background:rgba(0,220,255,0.08);border:1px solid rgba(0,220,255,0.22);color:#00dcff;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:0.75rem;font-weight:700;letter-spacing:0.04em;font-family:'Inter',sans-serif;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-add:hover{background:rgba(0,220,255,0.16);box-shadow:0 0 14px rgba(0,220,255,0.25);transform:translateY(-1px);}
+.btn-rem{background:rgba(255,45,120,0.09);border:1px solid rgba(255,45,120,0.22);color:#ff2d78;border-radius:6px;padding:4px 6px;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;justify-content:center;}
+.btn-rem:hover{background:rgba(255,45,120,0.2);transform:scale(1.08);box-shadow:0 0 10px rgba(255,45,120,0.3);}
+
+/* SETTINGS */
+.set-lbl{color:rgba(255,255,255,0.38);font-size:0.7rem;letter-spacing:0.07em;margin-bottom:7px;display:block;}
+.q-ctrl{display:flex;align-items:center;gap:10px;}
+.q-btn{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;}
+.q-val{color:#00dcff;font-weight:700;font-size:1.3rem;font-family:'JetBrains Mono',monospace;min-width:26px;text-align:center;}
+.opt-btn{width:100%;padding:8px 11px;border-radius:7px;border:1px solid;cursor:pointer;font-size:0.76rem;text-align:left;transition:all .15s;font-family:'Inter',sans-serif;}
+
+/* CONTROLS */
+.run-btn{background:linear-gradient(135deg,#00dcff,#bf5fff);border:none;color:#000;font-weight:800;padding:12px 30px;border-radius:10px;cursor:pointer;font-size:0.9rem;letter-spacing:0.06em;font-family:'Outfit',sans-serif;transition:all .2s;}
+.run-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,220,255,0.25);}
+.ctrl-bar{display:inline-flex;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:6px;gap:6px;box-shadow:inset 0 2px 10px rgba(0,0,0,0.3);}
+.ctrl-btn{width:40px;height:40px;border-radius:8px;border:1px solid transparent;background:transparent;cursor:pointer;transition:all .2s cubic-bezier(0.4,0,0.2,1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.6);}
+.ctrl-btn:hover:not(:disabled){background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.12);transform:translateY(-1px);}
+.ctrl-btn:active:not(:disabled){transform:translateY(1px);}
+.ctrl-btn:disabled{opacity:0.25;cursor:not-allowed;}
+.prog-wrap{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+.prog-bar-bg{height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.prog-bar-fg{height:100%;background:linear-gradient(90deg,#00dcff,#bf5fff);border-radius:2px;transition:width .25s;}
+
+/* EXEC BANNER */
+.exec-banner{padding:14px 20px;border-radius:14px;background:rgba(255,255,255,0.035);display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+@keyframes glowPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.glow-dot{animation:glowPulse 1.2s infinite;}
+.exec-stat{display:flex;flex-direction:column;}
+.exec-stat-lbl{color:rgba(255,255,255,0.28);font-size:0.6rem;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;}
+.exec-stat-val{color:white;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:1rem;}
+
+/* GANTT */
+@keyframes blockIn{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0% 0 0)}}
+.gantt-block-new{animation:blockIn .3s cubic-bezier(.4,0,.2,1) both;}
+.metrics-table{width:100%;border-collapse:collapse;font-size:0.84rem;}
+.metrics-table th{padding:8px 12px;text-align:center;font-size:0.65rem;letter-spacing:0.08em;color:rgba(255,255,255,0.28);border-bottom:1px solid rgba(255,255,255,0.07);font-weight:500;}
+.metrics-table td{padding:9px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04);}
+.badge-tat{background:rgba(99,102,241,0.18);color:#a5b4fc;padding:3px 11px;border-radius:20px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.badge-wt{background:rgba(0,220,255,0.12);color:#00dcff;padding:3px 11px;border-radius:20px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.stat-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:8px 16px;text-align:center;}
+.stat-card-lbl{color:rgba(255,255,255,0.3);font-size:0.62rem;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;}
+.stat-card-val{color:white;font-weight:800;font-size:1.05rem;font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────
+const NEON=['#00dcff','#ff2d78','#39ff14','#ffcc00','#bf5fff','#ff6b2b','#00ff9d','#ff4d4d'];
+const NEON_BG=['rgba(0,220,255,.13)','rgba(255,45,120,.13)','rgba(57,255,20,.12)','rgba(255,204,0,.12)','rgba(191,95,255,.12)','rgba(255,107,43,.12)','rgba(0,255,157,.12)','rgba(255,77,77,.12)'];
+
+const ALGOS=[
+  {id:'fcfs',lbl:'FCFS',full:'First Come First Serve',tag:'NP',desc:'Processes execute in arrival order. Simple but can cause the "convoy effect" where short jobs wait behind long ones.'},
+  {id:'sjf',lbl:'SJF',full:'Shortest Job First',tag:'NP',desc:'At each scheduling point, the arrived process with the shortest burst time is selected. Optimal for average waiting time among NP algorithms.'},
+  {id:'srtn',lbl:'SRTN',full:'Shortest Remaining Time Next',tag:'P',desc:'Preemptive SJF. If a new process arrives with a shorter remaining burst than the current one, it immediately preempts it. Minimizes average WT.'},
+  {id:'rr',lbl:'RR',full:'Round Robin',tag:'P',quantum:true,desc:'Each process gets a fixed time quantum in a cyclic order. After the quantum expires, the process is moved to the back of the queue. Fair and responsive.'},
+  {id:'pp',lbl:'Priority-P',full:'Priority Scheduling (Preemptive)',tag:'P',priority:true,desc:'Runs the highest-priority available process. A newly arrived process with higher priority immediately preempts the currently running process.'},
+  {id:'pnp',lbl:'Priority-NP',full:'Priority Scheduling (Non-Preemptive)',tag:'NP',priority:true,desc:'Selects the highest-priority arrived process at each scheduling point, but once started, it runs to completion without interruption.'},
+  {id:'hrrn',lbl:'HRRN',full:'Highest Response Ratio Next',tag:'NP',desc:'Non-preemptive. Selects the process with highest Response Ratio = (W + BT) / BT. Prevents starvation by naturally boosting long-waiting jobs.'},
+];
+
+const DEF=[
+  {id:1,nm:'P1',at:0,bt:3,pri:3},
+  {id:2,nm:'P2',at:2,bt:6,pri:1},
+  {id:3,nm:'P3',at:4,bt:4,pri:4},
+  {id:4,nm:'P4',at:6,bt:5,pri:2},
+  {id:5,nm:'P5',at:8,bt:2,pri:5},
+];
+
+// ── ALGORITHMS ───────────────────────────────────────────────────────
+function fcfs(ps){
+  const s=[...ps].sort((a,b)=>a.at-b.at||a.id-b.id);
+  let t=0,g=[];
+  s.forEach(p=>{if(t<p.at)t=p.at;g.push({pid:p.id,s:t,e:t+p.bt});t+=p.bt;});
+  return g;
+}
+function sjf(ps){
+  const r=ps.map(p=>({...p,done:false}));let t=0,g=[],d=0;
+  while(d<ps.length){
+    const av=r.filter(p=>!p.done&&p.at<=t);
+    if(!av.length){t=Math.min(...r.filter(p=>!p.done).map(p=>p.at));continue;}
+    const p=av.reduce((m,x)=>x.bt<m.bt||(x.bt===m.bt&&x.at<m.at)?x:m);
+    g.push({pid:p.id,s:t,e:t+p.bt});t+=p.bt;p.done=true;d++;
+  }return g;
+}
+function srtn(ps){
+  const r=ps.map(p=>({...p,rem:p.bt,done:false}));let t=0,g=[],d=0;
+  while(d<ps.length){
+    const av=r.filter(p=>!p.done&&p.at<=t);
+    if(!av.length){t++;continue;}
+    const p=av.reduce((m,x)=>x.rem<m.rem||(x.rem===m.rem&&x.at<m.at)?x:m);
+    const nx=r.filter(x=>!x.done&&x.at>t).map(x=>x.at);
+    const u=nx.length?Math.min(t+p.rem,Math.min(...nx)):t+p.rem;
+    if(g.length&&g[g.length-1].pid===p.id&&g[g.length-1].e===t)g[g.length-1].e=u;
+    else g.push({pid:p.id,s:t,e:u});
+    p.rem-=u-t;t=u;if(p.rem<=0){p.done=true;d++;}
+  }return g;
+}
+function rr(ps,q){
+  const r=ps.map(p=>({...p,rem:p.bt,done:false}));
+  const queue=[],arr=new Set();let t=0,g=[],d=0;
+  const add=ct=>r.filter(p=>!p.done&&!arr.has(p.id)&&p.at<=ct).sort((a,b)=>a.at-b.at||a.id-b.id).forEach(p=>{queue.push(p.id);arr.add(p.id);});
+  add(0);if(!queue.length){t=Math.min(...r.map(p=>p.at));add(t);}
+  let it=0,mx=r.reduce((s,p)=>s+p.bt,0)*3+100;
+  while(d<ps.length&&it++<mx){
+    if(!queue.length){t=Math.min(...r.filter(p=>!p.done&&!arr.has(p.id)).map(p=>p.at));add(t);continue;}
+    const id=queue.shift();const p=r.find(x=>x.id===id);
+    if(!p||p.done)continue;
+    const run=Math.min(q,p.rem);
+    g.push({pid:p.id,s:t,e:t+run});p.rem-=run;t+=run;add(t);
+    if(p.rem<=0){p.done=true;d++;}else queue.push(p.id);
+  }return g;
+}
+function priorityP(ps,hib){
+  const r=ps.map(p=>({...p,rem:p.bt,done:false}));let t=0,g=[],d=0;
+  while(d<ps.length){
+    const av=r.filter(p=>!p.done&&p.at<=t);
+    if(!av.length){t++;continue;}
+    const p=av.reduce((m,x)=>{const bx=hib?x.pri>m.pri:x.pri<m.pri;return bx||(x.pri===m.pri&&x.at<m.at)?x:m;});
+    const nx=r.filter(x=>!x.done&&x.at>t).map(x=>x.at);
+    const u=nx.length?Math.min(t+p.rem,Math.min(...nx)):t+p.rem;
+    if(g.length&&g[g.length-1].pid===p.id&&g[g.length-1].e===t)g[g.length-1].e=u;
+    else g.push({pid:p.id,s:t,e:u});
+    p.rem-=u-t;t=u;if(p.rem<=0){p.done=true;d++;}
+  }return g;
+}
+function priorityNP(ps,hib){
+  const r=ps.map(p=>({...p,done:false}));let t=0,g=[],d=0;
+  while(d<ps.length){
+    const av=r.filter(p=>!p.done&&p.at<=t);
+    if(!av.length){t=Math.min(...r.filter(p=>!p.done).map(p=>p.at));continue;}
+    const p=av.reduce((m,x)=>{const bx=hib?x.pri>m.pri:x.pri<m.pri;return bx||(x.pri===m.pri&&x.at<m.at)?x:m;});
+    g.push({pid:p.id,s:t,e:t+p.bt});t+=p.bt;p.done=true;d++;
+  }return g;
+}
+function hrrn(ps){
+  const r=ps.map(p=>({...p,done:false}));let t=0,g=[],d=0;
+  while(d<ps.length){
+    const av=r.filter(p=>!p.done&&p.at<=t);
+    if(!av.length){t=Math.min(...r.filter(p=>!p.done).map(p=>p.at));continue;}
+    const p=av.reduce((m,x)=>{const rx=(t-x.at+x.bt)/x.bt,rm=(t-m.at+m.bt)/m.bt;return rx>rm?x:m;});
+    g.push({pid:p.id,s:t,e:t+p.bt});t+=p.bt;p.done=true;d++;
+  }return g;
+}
+function runAlgo(alg,ps,q,hib){
+  const v=ps.filter(p=>p.bt>0);if(!v.length)return[];
+  switch(alg){case'fcfs':return fcfs(v);case'sjf':return sjf(v);case'srtn':return srtn(v);case'rr':return rr(v,Math.max(1,q));case'pp':return priorityP(v,hib);case'pnp':return priorityNP(v,hib);case'hrrn':return hrrn(v);default:return[];}
+}
+function calcMetrics(ps,gantt){
+  return ps.map(p=>{
+    const es=gantt.filter(e=>e.pid===p.id);
+    if(!es.length)return{...p,ct:p.at,tat:0,wt:0};
+    const ct=Math.max(...es.map(e=>e.e));
+    return{...p,ct,tat:ct-p.at,wt:ct-p.at-p.bt};
+  });
+}
+
+// ── STATE ────────────────────────────────────────────────────────────
+let state={
+  procs:[...DEF.map(p=>({...p}))],
+  alg:'fcfs',q:2,hib:false,
+  gantt:[],step:0,playing:false,ran:false,speed:700,
+  nextId:6
+};
+let timer=null;
+
+function getColor(idx){return NEON[idx%NEON.length];}
+function getBg(idx){return NEON_BG[idx%NEON_BG.length];}
+function cmap(){return Object.fromEntries(state.procs.map((p,i)=>[p.id,getColor(i)]));}
+function bgmap(){return Object.fromEntries(state.procs.map((p,i)=>[p.id,getBg(i)]));}
+
+function setState(patch,rerender=true){Object.assign(state,patch);if(rerender)render();}
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    if(state.step>=state.gantt.length){stopTimer();setState({playing:false});return;}
+    setState({step:state.step+1});
+  },state.speed);
+}
+function stopTimer(){clearInterval(timer);}
+
+// ── RENDER ───────────────────────────────────────────────────────────
+function render(){
+  const {procs,alg,q,hib,gantt,step,playing,ran,speed}=state;
+  const ai=ALGOS.find(a=>a.id===alg);
+  const cm=cmap(),bm=bgmap();
+  const totalT=gantt.length?Math.max(...gantt.map(e=>e.e)):0;
+  const vis=gantt.slice(0,step);
+  const cur=step>0&&step<gantt.length?gantt[step-1]:null;
+
+  const lastIdx={};gantt.forEach((e,i)=>{lastIdx[e.pid]=i;});
+  const doneIds=new Set(Object.entries(lastIdx).filter(([,i])=>i<step).map(([id])=>+id));
+  const metrics=ran?calcMetrics(procs,gantt):[];
+  const dm=metrics.filter(m=>doneIds.has(m.id));
+  const avgTAT=dm.length?(dm.reduce((s,p)=>s+p.tat,0)/dm.length).toFixed(2):'-';
+  const avgWT=dm.length?(dm.reduce((s,p)=>s+p.wt,0)/dm.length).toFixed(2):'-';
+
+  const tStep=totalT<=10?1:totalT<=25?2:totalT<=50?5:10;
+  const ticks=[];for(let i=0;i<=totalT;i+=tStep)ticks.push(i);
+  if(ticks.length&&ticks[ticks.length-1]!==totalT)ticks.push(totalT);
+
+  const html=`
+  <div class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-logo">
+        <span class="hdr-icon">◈</span>
+        <div>
+          <div class="hdr-title">CPU SCHEDULING VISUALIZER</div>
+          <div class="hdr-sub">Interactive Step-by-Step Algorithm Demo · OS Concepts</div>
+        </div>
+      </div>
+      <span class="hdr-badge">7 ALGORITHMS</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;margin-top:24px;">
+
+    <!-- ALGO SELECTOR -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <span class="sec-lbl">SELECT ALGORITHM</span>
+        <span style="font-size:0.78rem;color:rgba(0,220,255,0.8);border:1px solid rgba(0,220,255,0.2);padding:3px 11px;border-radius:20px;background:rgba(0,220,255,0.07);">${ai.full}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${ALGOS.map(a=>`
+          <button class="algo-pill${alg===a.id?' active':''}" onclick="setAlg('${a.id}')">
+            ${a.lbl}
+            <span class="${a.tag==='P'?'tag-p':'tag-np'}">${a.tag}</span>
+          </button>`).join('')}
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.38);font-size:0.81rem;line-height:1.65;">
+        ${ai.desc}
+      </div>
+    </div>
+
+    <!-- TWO COL -->
+    <div class="two-col">
+      <!-- PROCESS TABLE -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span class="sec-lbl">PROCESSES</span>
+          <button class="btn-add" onclick="addProc()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> ADD PROCESS</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="proc-table">
+            <thead><tr>
+              <th></th><th>NAME</th><th>ARRIVAL</th><th>BURST</th>
+              ${ai.priority?'<th>PRIORITY</th>':''}
+              <th></th>
+            </tr></thead>
+            <tbody>
+              ${procs.map(p=>`
+              <tr>
+                <td style="text-align:center;"><div style="width:9px;height:9px;border-radius:50%;background:${cm[p.id]};box-shadow:0 0 7px ${cm[p.id]};margin:0 auto;"></div></td>
+                <td><input class="cell-inp" style="width:50px;" value="${p.nm}" oninput="updProc(${p.id},'nm',this.value)"/></td>
+                <td><input class="cell-inp" style="width:58px;" type="number" min="0" value="${p.at}" oninput="updProc(${p.id},'at',this.value)"/></td>
+                <td><input class="cell-inp" style="width:58px;" type="number" min="1" value="${p.bt}" oninput="updProc(${p.id},'bt',this.value)"/></td>
+                ${ai.priority?`<td><input class="cell-inp" style="width:58px;" type="number" min="1" value="${p.pri}" oninput="updProc(${p.id},'pri',this.value)"/></td>`:''}
+                <td style="text-align:center;"><button class="btn-rem" onclick="remProc(${p.id})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS + LEGEND -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card">
+          <span class="sec-lbl">SETTINGS</span>
+          ${ai.quantum?`
+          <div style="margin-top:14px;">
+            <span class="set-lbl">TIME QUANTUM</span>
+            <div class="q-ctrl">
+              <button class="q-btn" onclick="setState({q:Math.max(1,state.q-1)})">−</button>
+              <span class="q-val">${q}</span>
+              <button class="q-btn" onclick="setState({q:state.q+1})">+</button>
+            </div>
+          </div>`:''}
+          ${ai.priority?`
+          <div style="margin-top:14px;">
+            <span class="set-lbl">PRIORITY CONVENTION</span>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
+              <button class="opt-btn" onclick="setState({hib:false})" style="border-color:${!hib?'rgba(0,220,255,.4)':'rgba(255,255,255,.09)'};background:${!hib?'rgba(0,220,255,.08)':'transparent'};color:${!hib?'#00dcff':'rgba(255,255,255,.4)'};">Lower # = Higher Priority</button>
+              <button class="opt-btn" onclick="setState({hib:true})" style="border-color:${hib?'rgba(0,220,255,.4)':'rgba(255,255,255,.09)'};background:${hib?'rgba(0,220,255,.08)':'transparent'};color:${hib?'#00dcff':'rgba(255,255,255,.4)'};">Higher # = Higher Priority</button>
+            </div>
+          </div>`:''}
+          <div style="margin-top:14px;">
+            <span class="set-lbl">SIMULATION SPEED</span>
+            <div style="display:flex;gap:16px;margin-top:8px;">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.83rem;color:rgba(255,255,255,0.85);font-family:'Inter',sans-serif;">
+                <input type="radio" style="accent-color:#00dcff;width:15px;height:15px;cursor:pointer;" name="simspeed" ${speed>=1000?'checked':''} onchange="setState({speed:1200})" />
+                Easy
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.83rem;color:rgba(255,255,255,0.85);font-family:'Inter',sans-serif;">
+                <input type="radio" style="accent-color:#00dcff;width:15px;height:15px;cursor:pointer;" name="simspeed" ${speed>300&&speed<1000?'checked':''} onchange="setState({speed:700})" />
+                Medium
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.83rem;color:rgba(255,255,255,0.85);font-family:'Inter',sans-serif;">
+                <input type="radio" style="accent-color:#00dcff;width:15px;height:15px;cursor:pointer;" name="simspeed" ${speed<=300?'checked':''} onchange="setState({speed:250})" />
+                Fast
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <span class="sec-lbl">LEGEND</span>
+          <div style="margin-top:11px;display:flex;flex-direction:column;gap:6px;">
+            ${procs.map((p,i)=>`
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:11px;height:11px;border-radius:3px;background:${cm[p.id]};flex-shrink:0;"></div>
+              <span style="color:rgba(255,255,255,.7);font-size:0.82rem;font-family:'JetBrains Mono',monospace;">${p.nm}</span>
+              <span style="color:rgba(255,255,255,.22);font-size:0.72rem;margin-left:auto;font-family:'JetBrains Mono',monospace;">AT=${p.at} BT=${p.bt}${ai.priority?' P='+p.pri:''}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <button class="run-btn" onclick="runSim()"><span style="display:inline-flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg> RUN SIMULATION</span></button>
+      ${ran?`
+      <div class="ctrl-bar">
+        <button class="ctrl-btn" onclick="doReset()" title="Reset to start"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg></button>
+        <button class="ctrl-btn" onclick="stepBack()" ${step===0?'disabled':''}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="15 18 9 12 15 6 15 18"></polygon></svg></button>
+        <button class="ctrl-btn" onclick="togglePlay()" style="color:${playing?'#ffcc00':'#00dcff'};background:${playing?'rgba(255,204,0,.15)':'rgba(0,220,255,.15)'};border-color:${playing?'rgba(255,204,0,.4)':'rgba(0,220,255,.4)'};box-shadow:0 0 16px ${playing?'rgba(255,204,0,.25)':'rgba(0,220,255,.25)'};">
+          ${playing?'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>'}
+        </button>
+        <button class="ctrl-btn" onclick="stepFwd()" ${step>=gantt.length?'disabled':''}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="9 18 15 12 9 6 9 18"></polygon></svg></button>
+        <button class="ctrl-btn" onclick="jumpEnd()" ${step>=gantt.length?'disabled':''}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg></button>
+      </div>
+      <div class="prog-wrap">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:rgba(255,255,255,.28);font-size:0.68rem;font-family:'JetBrains Mono',monospace;">STEP</span>
+          <span style="color:rgba(255,255,255,.55);font-size:0.68rem;font-family:'JetBrains Mono',monospace;">${step}/${gantt.length}</span>
+        </div>
+        <div class="prog-bar-bg"><div class="prog-bar-fg" style="width:${gantt.length?step/gantt.length*100:0}%;"></div></div>
+      </div>`:''}
+    </div>
+
+    <!-- EXECUTION BANNER -->
+    ${cur?`
+    <div class="exec-banner" style="border:1px solid ${cm[cur.pid]}38;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="glow-dot" style="width:9px;height:9px;border-radius:50%;background:${cm[cur.pid]};box-shadow:0 0 10px ${cm[cur.pid]},0 0 22px ${cm[cur.pid]}50;"></div>
+        <span style="color:rgba(255,255,255,.33);font-size:0.7rem;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;">EXECUTING</span>
+      </div>
+      <div style="background:${cm[cur.pid]};color:#000;font-weight:800;padding:4px 16px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:.9rem;">
+        ${procs.find(p=>p.id===cur.pid)?.nm||'?'}
+      </div>
+      <div style="display:flex;gap:22px;flex-wrap:wrap;">
+        ${[['START',cur.s],['END',cur.e],['DURATION',cur.e-cur.s]].map(([l,v])=>`
+          <div class="exec-stat">
+            <span class="exec-stat-lbl">${l}</span>
+            <span class="exec-stat-val">${v}</span>
+          </div>`).join('')}
+      </div>
+    </div>`:''}
+
+    <!-- GANTT CHART -->
+    ${ran? `<div id="export-target" style="display:flex;flex-direction:column;gap:16px;background:#0b0f19;padding:1px;">` : ''}
+    ${ran?`
+    <div class="card" id="export-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="sec-lbl">GANTT CHART</span>
+        ${step>=gantt.length ? `<button class="btn-add" id="export-btn" onclick="exportImage()" style="background:rgba(255,45,120,0.1);color:#ff2d78;border-color:rgba(255,45,120,0.3);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> EXPORT PNG</button>` : ''}
+      </div>
+      <div style="margin-top:18px;">
+        <!-- Time Markers Above Bar -->
+        <div style="display:flex;align-items:stretch;gap:0;margin-bottom:6px;">
+          <div style="width:36px;flex-shrink:0;"></div>
+          <div style="flex:1;position:relative;height:12px;">
+             ${[...new Set(vis.flatMap(e=>[e.s, e.e]))].map(t => `<div style="position:absolute;left:${totalT>0?(t/totalT)*100:0}%;transform:translateX(-50%);font-size:.7rem;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.8);font-weight:700;">${t}</div>`).join('')}
+          </div>
+        </div>
+        <!-- Main bar -->
+        <div style="display:flex;align-items:stretch;gap:0;">
+          <div style="width:36px;flex-shrink:0;"></div>
+          <div style="flex:1;position:relative;height:52px;background:rgba(255,255,255,.025);border-radius:8px;border:1px solid rgba(255,255,255,.05);overflow:hidden;">
+            ${totalT===0?'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.2);font-size:.8rem;">No processes scheduled</div>':''}
+            ${vis.map((e,i)=>{
+              const w=((e.e-e.s)/totalT)*100,l=(e.s/totalT)*100;
+              const isNew=i===step-1;
+              const nm=procs.find(p=>p.id===e.pid)?.nm||'?';
+              return`<div class="${isNew?'gantt-block-new':''}" style="position:absolute;left:${l}%;width:${w}%;height:100%;background:${bm[e.pid]};border-right:1px solid rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:${cm[e.pid]};text-shadow:0 0 8px ${cm[e.pid]};${isNew?`box-shadow:inset 0 0 24px ${cm[e.pid]}25,0 0 14px ${cm[e.pid]}35;`:''}">
+                ${w>2?nm:''}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <!-- Per-process rows -->
+        ${procs.filter(p=>vis.some(e=>e.pid===p.id)).map(p=>`
+        <div style="display:flex;align-items:center;gap:0;margin-top:5px;">
+          <div style="width:36px;flex-shrink:0;text-align:right;padding-right:8px;font-size:.65rem;color:rgba(255,255,255,.32);font-family:'JetBrains Mono',monospace;">${p.nm}</div>
+          <div style="flex:1;position:relative;height:16px;background:rgba(255,255,255,.02);border-radius:4px;overflow:hidden;">
+            ${vis.filter(e=>e.pid===p.id).map(e=>`<div style="position:absolute;left:${(e.s/totalT)*100}%;width:${((e.e-e.s)/totalT)*100}%;height:100%;background:${cm[p.id]};opacity:.75;border-right:1px solid rgba(0,0,0,.4);"></div>`).join('')}
+          </div>
+        </div>`).join('')}
+        <!-- Timeline -->
+        <div style="display:flex;align-items:stretch;gap:0;margin-top:4px;">
+          <div style="width:36px;flex-shrink:0;"></div>
+          <div style="flex:1;position:relative;height:22px;">
+            ${ticks.map(t=>`<div style="position:absolute;left:${(t/totalT)*100}%;transform:translateX(-50%);">
+              <div style="width:1px;height:4px;background:rgba(255,255,255,.18);margin:0 auto;"></div>
+              <span style="font-size:.62rem;color:rgba(255,255,255,.3);font-family:'JetBrains Mono',monospace;">${t}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`:''}
+
+    <!-- METRICS -->
+    ${ran&&dm.length>0?`
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+        <span class="sec-lbl">PERFORMANCE METRICS</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          ${[['AVG TAT',avgTAT,'rgba(99,102,241,.18)','#a5b4fc'],['AVG WT',avgWT,'rgba(0,220,255,.12)','#00dcff'],['TOTAL',totalT,'rgba(255,204,0,.12)','#ffcc00']].map(([l,v,bg,c])=>`
+          <div class="stat-card" style="background:${bg};border-color:${c}25;">
+            <div class="stat-card-lbl" style="color:${c};">${l}</div>
+            <div class="stat-card-val">${v}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="metrics-table">
+          <thead><tr>
+            <th>PROCESS</th><th>ARRIVAL</th><th>BURST</th><th>COMPLETION</th><th>TURNAROUND</th><th>WAITING</th>
+          </tr></thead>
+          <tbody>
+            ${dm.map(p=>`
+            <tr>
+              <td><div style="display:inline-flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:2px;background:${cm[p.id]};"></div><span style="color:white;font-weight:700;font-family:'JetBrains Mono',monospace;">${p.nm}</span></div></td>
+              <td style="color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;">${p.at}</td>
+              <td style="color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;">${p.bt}</td>
+              <td style="color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;">${p.ct}</td>
+              <td><span class="badge-tat">${p.tat}</span></td>
+              <td><span class="badge-wt">${p.wt}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`:''}
+    ${ran? `</div>` : ''}
+
+    ${ran&&step<gantt.length&&step>0?`
+    <div style="text-align:center;color:rgba(255,255,255,.22);font-size:.8rem;padding:6px;">
+      ↓ Complete the animation to view all metrics
+    </div>`:''}
+
+  </div>`;
+
+  document.getElementById('app').innerHTML=html;
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────
+function setAlg(id){stopTimer();setState({alg:id,ran:false,playing:false,step:0,gantt:[]});}
+function addProc(){
+  state.procs.push({id:state.nextId,nm:`P${state.nextId}`,at:0,bt:4,pri:1});
+  state.nextId++;setState({ran:false});
+}
+function remProc(id){state.procs=state.procs.filter(p=>p.id!==id);setState({ran:false});}
+function updProc(id,f,v){
+  const p=state.procs.find(x=>x.id===id);
+  if(!p)return;
+  p[f]=f==='nm'?v:Math.max(0,parseInt(v)||0);
+  setState({ran:false});
+}
+function runSim(){
+  stopTimer();
+  const g=runAlgo(state.alg,state.procs,state.q,state.hib);
+  setState({gantt:g,step:0,ran:true,playing:false});
+}
+function togglePlay(){
+  if(state.playing){stopTimer();setState({playing:false});}
+  else{setState({playing:true});startTimer();}
+}
+function doReset(){stopTimer();setState({step:0,playing:false});}
+function stepFwd(){stopTimer();setState({step:Math.min(state.step+1,state.gantt.length),playing:false});}
+function stepBack(){stopTimer();setState({step:Math.max(state.step-1,0),playing:false});}
+function jumpEnd(){stopTimer();setState({step:state.gantt.length,playing:false});}
+
+function exportImage() {
+  const target = document.getElementById("export-target");
+  if(!target) return;
+  const btn = document.getElementById("export-btn");
+  if(btn) btn.style.visibility = 'hidden';
+
+  const originalScroll = window.scrollY;
+  window.scrollTo(0,0);
+
+  setTimeout(() => {
+    html2canvas(target, {
+      backgroundColor: '#0b0f19',
+      scale: 2
+    }).then(canvas => {
+      window.scrollTo(0, originalScroll);
+      if(btn) btn.style.visibility = '';
+      const link = document.createElement('a');
+      link.download = `CPU_Scheduling_${state.alg.toUpperCase()}_Results.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }, 100);
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
